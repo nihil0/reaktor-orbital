@@ -14,6 +14,16 @@ class TestSatroute(unittest.TestCase):
         self.assertEqual(sat_position(0,90,0),(0.0,satroute.earth_radius,0.0))
         self.assertEqual(sat_position(90,0,0),(0.0,0.0,satroute.earth_radius))
 
+    def test_is_visible(self):
+        sat1 = satroute.Satellite('1',90,0,0)
+        sat2 = satroute.Satellite('2',0,0,0)
+        self.assertFalse(satroute.is_visible(sat1,sat2))
+
+        sat1 = satroute.Satellite('1',90,0,2*satroute.earth_radius)
+        sat2 = satroute.Satellite('2',0,0,2*satroute.earth_radius)
+        self.assertTrue(satroute.is_visible(sat1,sat2))
+
+
 
 
 if __name__ == '__main__':
