@@ -19,7 +19,7 @@ class Satellite:
     Satellite orbiting earth
 
     '''
-    def __init__(self,name,h,lat,lon):
+    def __init__(self,name,lat,lon,h):
 
         self.name = name
 
