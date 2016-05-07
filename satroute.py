@@ -11,6 +11,7 @@ using a network of satellites.
 
 '''
 from math import cos,sin,pi,sqrt,asin
+import networkx as nx
 
 earth_radius = 6371
 
@@ -119,15 +120,27 @@ def udlink(sat_list,ground_point):
     if round(abs(ground_point.r-earth_radius),4) != 0:
         raise ValueError('Ground point is not on the ground!')
 
-    angles = {m.name:sat_angle(ground_point,m) for m in sat_list}
-
     visible_sats = [m for m in sat_list if sat_angle(ground_point,m)>=0]
 
     return find_nearest(visible_sats,ground_point)
 
+def build_graph(sat_constellation):
+    '''
+    Returns a NetworkX graph representing the connectivity between the various
+    satellites in the constellation.
+    '''
+    sat_graph = nx.Graph()
+
+    nodes = list(sat_constellation.keys())
+    sat_graph.add_nodes_from(nodes)
+
+    for ii in range(len(nodes)):
+        for kk in range((ii+1),len(nodes)):
+            if is_visible(sat_constellation[nodes[ii]],sat_constellation[nodes[kk]]):
+                sat_graph.add_edge(nodes[ii],nodes[kk])
 
 
-
+    return sat_graph
 if __name__== '__main__':
     # Read data file
     with open('data.txt','r') as f:
@@ -150,5 +163,4 @@ if __name__== '__main__':
     start_node = udlink(list(sat_constellation.values()),src)
     end_node = udlink(list(sat_constellation.values()),dst)
 
-    print(start_node+' '+end_node)
 
