@@ -40,7 +40,7 @@ def distance(sat1,sat2):
     Distance between two satellites
     '''
     return sqrt( (sat2.x-sat1.x)**2 +  (sat2.y-sat1.y)**2 +
-            (sat2.z-sat1.z)**2)
+            (sat2.z-sat1.z)**2 )
 
 def is_visible(sat1,sat2):
     '''
@@ -54,5 +54,32 @@ def is_visible(sat1,sat2):
 
     return p > earth_radius
 
+def read_sat_position(position_str):
+    '''
+    Returns a Satellite object. Takes a formatted input string as input.
+    See challenge details for input format.
+
+    TODO: Sanitize input strings.
+
+    '''
+    var = [float(m) if m[0:3] != 'SAT' else m for m in position_str.split(',')]
+    return Satellite(*var)
+
+def parse_route(route_str):
+    '''
+    Returns a dictionary with information about the source and destination
+    '''
+    endpoints=[float(m) for m in route_str.split(',')[1:]]
+
 if __name__== '__main__':
-    print('boo')
+
+    with open('data.txt','r') as f:
+        # Skip first line
+        f.readline()
+
+        # Create list of Satellite objects
+        sat_constellation = list()
+        sat_constellation = [read_sat_position(line) for line in f if line[0]!='R']
+
+    print(sat_constellation)
+

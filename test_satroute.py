@@ -23,7 +23,11 @@ class TestSatroute(unittest.TestCase):
         sat2 = satroute.Satellite('2',0,0,2*satroute.earth_radius)
         self.assertTrue(satroute.is_visible(sat1,sat2))
 
-
+    def test_read_sat_position(self):
+        pos_str = 'SAT4,72.89660255707332,38.46237851934811,605.1324639357101\n'
+        sat = satroute.read_sat_position(pos_str)
+        self.assertEqual(sat.name,'SAT4')
+        self.assertAlmostEqual(sat.r,satroute.earth_radius+605.132463,4)
 
 
 if __name__ == '__main__':
