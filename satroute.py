@@ -10,7 +10,7 @@ using a network of satellites.
 :Author: Neelabh Kashyap
 
 '''
-from math import cos,sin,pi,sqrt
+from math import cos,sin,pi,sqrt,asin
 
 earth_radius = 6371
 
@@ -71,9 +71,10 @@ def parse_route(route_str):
     '''
     endpoints=[float(m) for m in route_str.split(',')[1:]]
 
-    endpoint_dict = {'src':{
-        'lat':endpoints[0],
-        'lon':endpoints[1]
+    endpoint_dict = {
+        'src':{
+            'lat':endpoints[0],
+            'lon':endpoints[1]
         },
         'dst':{
             'lat':endpoints[2],
@@ -83,16 +84,71 @@ def parse_route(route_str):
 
     return(endpoint_dict)
 
+def find_nearest(sat_list,sat):
+    '''
+    Returns the ID of the nearest satellite to sat in list of Satellite objects
+    '''
+    distances = [distance(sat,m) for m in sat_list]
+
+    return(sat_list[distances.index(min(distances))].name)
+
+def visible_sats(sat_list,sat):
+    '''
+    Returns logical list indicating visible satellites from sat
+    '''
+    #return(list(filter(lambda x:is_visible(sat,x),sat_list)))
+    return([is_visible(sat,m) for m in sat_list if m.name != sat.name])
+
+def sat_angle(ground_point,sat):
+    '''
+    Returns the angle between the tangent at ground_point and sat
+    '''
+    if round(abs(ground_point.r-earth_radius),4) != 0:
+        raise ValueError('Ground point is not on the ground!')
+
+    d = distance(ground_point,sat)
+
+    return (180/pi)*(asin((sat.r**2 - d**2 - earth_radius**2)/(2*d*earth_radius)))
+
+def udlink(sat_list,ground_point):
+    '''
+    Returns the name of the satellite which will be the entry/exit node given
+    a point on the earth. This is the closest satellite to which line-of-sight
+    transmission is possible.
+    '''
+    if round(abs(ground_point.r-earth_radius),4) != 0:
+        raise ValueError('Ground point is not on the ground!')
+
+    angles = {m.name:sat_angle(ground_point,m) for m in sat_list}
+
+    visible_sats = [m for m in sat_list if sat_angle(ground_point,m)>=0]
+
+    return find_nearest(visible_sats,ground_point)
+
+
+
 
 if __name__== '__main__':
-
+    # Read data file
     with open('data.txt','r') as f:
         # Skip first line
         f.readline()
 
-        # Create list of Satellite objects
-        sat_constellation = list()
-        sat_constellation = [read_sat_position(line) for line in f if line[0]!='R']
+        lines = f.readlines()
 
-    print(sat_constellation)
+    # Create list of Satellite objects
+    sat_constellation = [read_sat_position(line) for line in lines if line[0]!='R']
+    sat_constellation = {m.name:m for m in sat_constellation}
+    route_str = next(filter(lambda x:x[0:5]=='ROUTE',lines))
+
+    endpoints = parse_route(route_str)
+
+    # Source and destination points will be treated as satellites with 0 height
+    src = Satellite('src',endpoints['src']['lat'],endpoints['src']['lon'],0)
+    dst = Satellite('dst',endpoints['dst']['lat'],endpoints['dst']['lon'],0)
+
+    start_node = udlink(list(sat_constellation.values()),src)
+    end_node = udlink(list(sat_constellation.values()),dst)
+
+    print(start_node+' '+end_node)
 
