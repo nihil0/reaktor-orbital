@@ -71,6 +71,19 @@ def parse_route(route_str):
     '''
     endpoints=[float(m) for m in route_str.split(',')[1:]]
 
+    endpoint_dict = {'src':{
+        'lat':endpoints[0],
+        'lon':endpoints[1]
+        },
+        'dst':{
+            'lat':endpoints[2],
+            'lon':endpoints[3]
+            }
+        }
+
+    return(endpoint_dict)
+
+
 if __name__== '__main__':
 
     with open('data.txt','r') as f:

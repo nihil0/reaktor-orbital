@@ -29,6 +29,12 @@ class TestSatroute(unittest.TestCase):
         self.assertEqual(sat.name,'SAT4')
         self.assertAlmostEqual(sat.r,satroute.earth_radius+605.132463,4)
 
+    def test_parse_route(self):
+        route_str = 'ROUTE,82.25570442781424,3.787746674901541,-68.04960433738873,-94.72241574472592'
+        endpoints = satroute.parse_route(route_str)
+
+        self.assertAlmostEqual(endpoints['src']['lat'],82.2557,4)
+
 
 if __name__ == '__main__':
     unittest.main()
