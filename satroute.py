@@ -163,4 +163,10 @@ if __name__== '__main__':
     start_node = udlink(list(sat_constellation.values()),src)
     end_node = udlink(list(sat_constellation.values()),dst)
 
+    sat_graph = build_graph(sat_constellation)
+
+    path = nx.shortest_path(sat_graph,start_node,end_node)
+
+    print(','.join(path))
+
 
